@@ -138,13 +138,20 @@ roadmap's optimistic branches.
 
 ## Experiment 08 - Representation Test (Robustness)
 
-Test the representation-dependency of the taxonomy:
-- **Design**: Measure the same 26 structures in different domains:
-  - Raw Waveform
-  - STFT Spectrogram
-  - Modal Decomposition
-  - Wavelet Transform
-- **Hypothesis**: If the clustering changes completely, the taxonomy is fragile to representation. If it survives, the taxonomy represents a robust, invariant physical property.
+- [x] **Experiment 08 (Representation Robustness)**. Completed on June 21, 2026.
+  We evaluated all 26 structures and ran the gain sweep across 4 representations (Waveform envelope, STFT Spectrogram, Gabor Wavelet filterbank, and Modal decomposition).
+  - **Verdict**: **Future B: Representation Fragility** was confirmed!
+  - **Findings**: The bifurcation threshold gain $g^*$ shifted significantly across representations: **$0.558$ for Waveform, $0.762$ for Spectrogram, $0.558$ for Wavelet, and $0.533$ for Modal**. The cluster agreement dropped to **$51.4\%$** for Modal decomposition. This mathematically proves that category boundaries and transition thresholds are not completely intrinsic properties of the system, but are partially constructed by how we choose to observe it (observation window and feature domain).
+
+## Experiment 09 - Adversarial Structures (Robustness Falsification)
+
+Test the boundaries of our measurement framework using signals designed to actively deceive the taxonomy:
+- **Design**: Intentionally generate adversarial structures:
+  - Beating oscillators (conflating decay and modulation)
+  - Chirps (drifting resonances)
+  - Quasi-periodic oscillators
+  - Granular clouds and coupled resonator loops
+- **Hypothesis**: Find the limits of the ENBW survival and autocorrelation memory metrics. Document where the metrics are fooled, establishing a boundary for where our persistence categories are valid.
 
 ---
 
