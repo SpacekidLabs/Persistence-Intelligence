@@ -1,0 +1,58 @@
+{
+    "pure exponential decay": {
+        "survival_time": 0.9998278260930294,
+        "identity_stability": 0.8925601071505682,
+        "energy_decay": 0.0003557562432472867,
+        "recovery_after_perturbation": 0.9999926483504947,
+        "competition_strength": 1.0,
+        "state_memory": 0.0
+    },
+    "double exponential decay": {
+        "survival_time": 0.4409948335239068,
+        "identity_stability": 0.9088185307954371,
+        "energy_decay": 0.010623278276160195,
+        "recovery_after_perturbation": 0.9999874205577157,
+        "competition_strength": 1.0,
+        "state_memory": 0.0
+    },
+    "delay line without feedback": {
+        "survival_time": 0.06694878078413248,
+        "identity_stability": 0.0,
+        "energy_decay": 0.0,
+        "recovery_after_perturbation": 0.0,
+        "competition_strength": 1.0,
+        "state_memory": 0.35845683633372327
+    },
+    "feedback loop": {
+        "survival_time": 0.1486567529426735,
+        "identity_stability": 0.0,
+        "energy_decay": 1.3967877724523555e-08,
+        "recovery_after_perturbation": 0.0,
+        "competition_strength": 1.0,
+        "state_memory": 0.5350500984325207
+    },
+    "resonant system": {
+        "survival_time": 4.957435575437337,
+        "identity_stability": 0.9988842201210463,
+        "energy_decay": 0.9999720327874368,
+        "recovery_after_perturbation": 0.4603035300423123,
+        "competition_strength": 1.0,
+        "state_memory": 0.9441730873488822
+    },
+    "chaotic recurrence": {
+        "survival_time": 4.957175276644577,
+        "identity_stability": 0.996747368566644,
+        "energy_decay": 1.0,
+        "recovery_after_perturbation": 0.8177006947865674,
+        "competition_strength": 1.0,
+        "state_memory": 0.12430149573386606
+    },
+    "periodic recurrence": {
+        "survival_time": 0.960557887766226,
+        "identity_stability": 0.0,
+        "energy_decay": 1.0,
+        "recovery_after_perturbation": 0.836772176276606,
+        "competition_strength": 1.0,
+        "state_memory": 0.8947957453835456
+    }
+}

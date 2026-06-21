@@ -1,34 +1,34 @@
 {
     "Pure sine 440 Hz": {
-        "survival_time": 4.9458503401360545,
+        "survival_time": 4.957435575437337,
         "identity_stability": 0.999999983856128,
         "energy_decay": 0.9999720327874368,
-        "recovery_after_perturbation": 0.998885373185985,
+        "recovery_after_perturbation": 0.4603035300423123,
         "competition_strength": 1.0,
-        "state_memory": 0.9999973091797975
+        "state_memory": 0.9441730873488822
     },
     "Decaying sine 440 Hz": {
-        "survival_time": 0.893968253968254,
+        "survival_time": 1.1495065814642482,
         "identity_stability": 0.9999999838288651,
         "energy_decay": 0.0010023073239639414,
-        "recovery_after_perturbation": 0.9711373444798483,
-        "competition_strength": 1.0,
-        "state_memory": 0.9999973314055935
-    },
-    "Frequency drift 440 Hz": {
-        "survival_time": 4.9458503401360545,
-        "identity_stability": 0.7723622268392359,
-        "energy_decay": 1.0,
-        "recovery_after_perturbation": 0.9981624947307893,
-        "competition_strength": 1.0,
-        "state_memory": 0.9999869419682221
-    },
-    "White noise burst": {
-        "survival_time": 0.0,
-        "identity_stability": 0.029475947609600407,
-        "energy_decay": 0.0,
-        "recovery_after_perturbation": 0.9999472631133367,
+        "recovery_after_perturbation": 0.9999923598960886,
         "competition_strength": 1.0,
         "state_memory": 0.0
+    },
+    "Frequency drift 440 Hz": {
+        "survival_time": 4.957391640545856,
+        "identity_stability": 0.7723622268392359,
+        "energy_decay": 1.0,
+        "recovery_after_perturbation": 0.5870944433677437,
+        "competition_strength": 1.0,
+        "state_memory": 0.22832577351201655
+    },
+    "White noise burst": {
+        "survival_time": 0.44417203615375955,
+        "identity_stability": 0.029475947609600407,
+        "energy_decay": 0.0,
+        "recovery_after_perturbation": 0.0,
+        "competition_strength": 1.0,
+        "state_memory": 0.0018422605188475457
     }
 }

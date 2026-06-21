@@ -122,44 +122,29 @@ roadmap's optimistic branches.
 - [x] Read the disagreement rates against A/B/C. Be honest about ambiguous cases.
 - [x] Update this document's "Where we are" and "The open question" sections with what was actually found, replacing the mock-run caveat with a real result.
 
-## Experiment 06 - contingent design
+## Experiment 06 - Metric Falsification Sweep
 
-06 should not be designed until the above is done, because its design
-depends on the answer:
+- [x] **Experiment 06 (Metric Falsification Sweep)**. Completed on June 21, 2026.
+  Instead of a standard parameter sweep, we ran an adversarial sweep generating 7 distinct physical structures (exponential decays, delay lines without feedback, chaotic recurrence, periodic recurrence, etc.) to stress-test and falsify our metric design.
+  - **Redesigned Metrics**: Replaced the arbitrary 0.1 threshold survival time with **Effective Survival Time (ENBW)**, and replaced scale-invariant state memory with **Envelope Autocorrelation Peak Prominence** (which cleanly assigns exactly `0.0` memory to pure exponential sines and double sines, while detecting delay line echos and feedback loops).
+  - **Results**: The new metrics successfully separated sines/resonances (Cluster 2) from exponential decays (Cluster 3) and feedback/recurrence systems (Cluster 1). The measurement system has proven itself capable of telling the difference.
 
-- **If A** (one axis): 06 becomes a *resolution* test, not a boundary test.
-  Take one structure and sweep a single parameter (e.g. decay time) finely
-  enough to see whether `survival_time`/`stability`/`recurrence_mean` move
-  together smoothly across the whole range, or whether there's a regime
-  change hiding inside what looked like one axis from four coarse samples.
-- **If B** (unrelated categories): 06 becomes a *vocabulary* question, not
-  a signal-processing one - is "persistence" even the right word to keep
-  using across resonance, modal, and feedback structures, or should the
-  project fork into three differently-named investigations?
-- **If C** (continuum + peel-away), which is the live hypothesis right now:
-  06 becomes **"Where does recurrence diverge?"** - a stress test that
-  starts at a structure with low recurrence (pure decaying sine) and
-  gradually introduces recurrence-producing structure (interruptions,
-  repetition, then an explicit feedback loop), tracking all three metrics
-  continuously across the transformation:
+## Experiment 07 - Memory Sweep (Trajectory & Phase Transition)
 
-  ```
-  Pure sine
-    -> sine with decay
-    -> sine with frequency drift
-    -> sine with interruptions
-    -> repeating impulse train
-    -> feedback loop
-  ```
+A continuous sweep to test the boundaries between resonance/decay and recurrence:
+- **Trajectory**: Generate a family of signals sweeping continuously:
+  $$\text{Pure Decay} \to \text{Delay Line} \to \text{Short Feedback} \to \text{Long Feedback} \to \text{Stateful Feedback}$$
+- **Hypothesis**: Track their coordinate path in PCA space. If the path is smooth, persistence is a continuum. If there are sudden jumps, we have discovered a phase transition in signal persistence.
 
-  The thing to look for: a point along this chain where `recurrence_mean`
-  stops moving with `survival_time`/`stability` and starts moving
-  independently. That point - not "feedback systems in general" - is the
-  actual fault line, and it's only findable by sweeping continuously
-  instead of comparing four isolated experiments.
+## Experiment 08 - Representation Test (Robustness)
 
-Whichever branch applies, 06 gets designed and written only after the real
-05 run, as its own step - not pre-built now.
+Test the representation-dependency of the taxonomy:
+- **Design**: Measure the same 26 structures in different domains:
+  - Raw Waveform
+  - STFT Spectrogram
+  - Modal Decomposition
+  - Wavelet Transform
+- **Hypothesis**: If the clustering changes completely, the taxonomy is fragile to representation. If it survives, the taxonomy represents a robust, invariant physical property.
 
 ---
 

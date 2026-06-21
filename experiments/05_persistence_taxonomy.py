@@ -1,7 +1,7 @@
 """
 Persistence Intelligence - Experiment 05: Persistence Taxonomy
 
-This script aggregates metrics from all 19 structures across the 4 experiments,
+This script aggregates metrics from all persistent structures across the experiments,
 standardizes the metrics, performs PCA and Hierarchical Clustering, and generates
 a comprehensive taxonomy report.
 """
@@ -200,6 +200,64 @@ PLACEHOLDER_DATA = {
             "competition_strength": 0.90,
             "state_memory": 0.92
         }
+    },
+    "06_metric_falsification": {
+        "pure exponential decay": {
+            "survival_time": 1.0,
+            "identity_stability": 1.0,
+            "energy_decay": 0.1,
+            "recovery_after_perturbation": 0.0,
+            "competition_strength": 1.0,
+            "state_memory": 0.0
+        },
+        "double exponential decay": {
+            "survival_time": 0.8,
+            "identity_stability": 1.0,
+            "energy_decay": 0.15,
+            "recovery_after_perturbation": 0.0,
+            "competition_strength": 1.0,
+            "state_memory": 0.0
+        },
+        "delay line without feedback": {
+            "survival_time": 0.3,
+            "identity_stability": 0.8,
+            "energy_decay": 0.05,
+            "recovery_after_perturbation": 0.2,
+            "competition_strength": 1.0,
+            "state_memory": 0.25
+        },
+        "feedback loop": {
+            "survival_time": 1.5,
+            "identity_stability": 0.9,
+            "energy_decay": 0.45,
+            "recovery_after_perturbation": 0.3,
+            "competition_strength": 1.0,
+            "state_memory": 0.75
+        },
+        "resonant system": {
+            "survival_time": 5.0,
+            "identity_stability": 1.0,
+            "energy_decay": 1.0,
+            "recovery_after_perturbation": 1.0,
+            "competition_strength": 1.0,
+            "state_memory": 1.0
+        },
+        "chaotic recurrence": {
+            "survival_time": 5.0,
+            "identity_stability": 0.2,
+            "energy_decay": 1.0,
+            "recovery_after_perturbation": 0.5,
+            "competition_strength": 1.0,
+            "state_memory": 0.5
+        },
+        "periodic recurrence": {
+            "survival_time": 5.0,
+            "identity_stability": 0.9,
+            "energy_decay": 0.8,
+            "recovery_after_perturbation": 0.8,
+            "competition_strength": 1.0,
+            "state_memory": 0.95
+        }
     }
 }
 
@@ -213,7 +271,8 @@ def load_metrics_data(results_dir: Path) -> tuple[list[dict], bool]:
         "01_signal_persistence",
         "02_competing_resonances",
         "03_modal_objects",
-        "04_feedback_systems"
+        "04_feedback_systems",
+        "06_metric_falsification"
     ]
     
     for key in experiment_keys:
@@ -364,7 +423,7 @@ def generate_plots(results: dict, output_dir: Path):
         
     plt.xlabel(f"PC1 ({results['explained_variance'][0]*100:.1f}% variance)")
     plt.ylabel(f"PC2 ({results['explained_variance'][1]*100:.1f}% variance)")
-    plt.title("PCA Space of 19 Persistent Structures (colored by experiment)", fontsize=13, fontweight='bold')
+    plt.title(f"PCA Space of {len(names)} Persistent Structures (colored by experiment)", fontsize=13, fontweight='bold')
     plt.grid(True, alpha=0.15)
     plt.axhline(0, color='grey', linestyle='--', linewidth=0.8, alpha=0.5)
     plt.axvline(0, color='grey', linestyle='--', linewidth=0.8, alpha=0.5)
@@ -443,7 +502,7 @@ def format_report(data: list[dict], results: dict, using_placeholders: bool) -> 
 
 {status_header}
 
-This report analyzes the metric similarities across 19 structures from 4 experiments.
+This report analyzes the metric similarities across {len(names)} structures from the experiments.
 The goal is to determine if "persistence" behaves as a single continuum, distinct unrelated categories, or a primary continuum with recurrence peeling away.
 
 ## 1. Comparison Table

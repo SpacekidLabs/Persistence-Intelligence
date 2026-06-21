@@ -2,36 +2,41 @@
 
 ✅ **Note**: Running on real measured values from experiments.
 
-This report analyzes the metric similarities across 19 structures from 4 experiments.
+This report analyzes the metric similarities across 26 structures from the experiments.
 The goal is to determine if "persistence" behaves as a single continuum, distinct unrelated categories, or a primary continuum with recurrence peeling away.
 
 ## 1. Comparison Table
 | Experiment Structure | Survival | Stability | Decay | Recovery | Competition | Memory | Cluster |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| signal: Pure sine 440 Hz | 4.95 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | **2** |
-| signal: Decaying sine 440 Hz | 0.89 | 1.00 | 0.00 | 0.97 | 1.00 | 1.00 | **1** |
-| signal: Frequency drift 440 Hz | 4.95 | 0.77 | 1.00 | 1.00 | 1.00 | 1.00 | **2** |
-| signal: White noise burst | 0.00 | 0.03 | 0.00 | 1.00 | 1.00 | 0.00 | **3** |
-| competing: 440 Hz | 5.10 | 0.80 | 0.12 | 0.86 | 0.74 | 1.00 | **2** |
-| competing: 880 Hz | 2.46 | 0.80 | 0.01 | 0.90 | 0.20 | 1.00 | **2** |
-| competing: 1320 Hz | 1.02 | 0.80 | 0.00 | 0.97 | 0.04 | 1.00 | **1** |
-| competing: noise floor | 0.59 | 0.80 | 0.00 | 0.99 | 0.02 | 0.99 | **1** |
-| modal: mode 1 | 5.45 | 0.80 | 0.10 | 0.86 | 0.70 | 1.00 | **2** |
-| modal: mode 2 | 3.01 | 0.79 | 0.01 | 0.90 | 0.22 | 1.00 | **2** |
-| modal: mode 3 | 1.53 | 0.80 | 0.00 | 0.96 | 0.06 | 1.00 | **1** |
-| modal: mode 4 | 0.86 | 0.79 | 0.00 | 0.99 | 0.02 | 1.00 | **1** |
-| feedback: 1x delay | 0.57 | 0.77 | 0.00 | 1.00 | 0.09 | 0.94 | **1** |
-| feedback: 2x delay | 0.58 | 0.77 | 0.00 | 1.00 | 0.08 | 0.94 | **1** |
-| feedback: 3x delay | 0.58 | 0.77 | 0.00 | 1.00 | 0.08 | 0.94 | **1** |
-| feedback: 4x delay | 0.58 | 0.77 | 0.00 | 1.00 | 0.08 | 0.94 | **1** |
-| feedback: 5x delay | 0.72 | 0.78 | 0.00 | 1.00 | 0.07 | 0.94 | **1** |
-| feedback: 6x delay | 0.72 | 0.78 | 0.00 | 1.00 | 0.07 | 0.94 | **1** |
-| feedback: overall feedback recurrence | 0.15 | 0.96 | 0.00 | 1.00 | 0.52 | 0.94 | **1** |
+| signal: Pure sine 440 Hz | 4.96 | 1.00 | 1.00 | 0.46 | 1.00 | 0.94 | **2** |
+| signal: Decaying sine 440 Hz | 1.15 | 1.00 | 0.00 | 1.00 | 1.00 | 0.00 | **3** |
+| signal: Frequency drift 440 Hz | 4.96 | 0.77 | 1.00 | 0.59 | 1.00 | 0.23 | **2** |
+| signal: White noise burst | 0.44 | 0.03 | 0.00 | 0.00 | 1.00 | 0.00 | **1** |
+| competing: 440 Hz | 3.91 | 0.80 | 0.12 | 1.00 | 0.74 | 0.00 | **3** |
+| competing: 880 Hz | 2.17 | 0.80 | 0.01 | 1.00 | 0.20 | 0.00 | **3** |
+| competing: 1320 Hz | 0.92 | 0.80 | 0.00 | 1.00 | 0.04 | 0.00 | **3** |
+| competing: noise floor | 0.55 | 0.80 | 0.00 | 1.00 | 0.02 | 0.00 | **3** |
+| modal: mode 1 | 4.30 | 0.80 | 0.10 | 1.00 | 0.70 | 0.00 | **3** |
+| modal: mode 2 | 2.58 | 0.79 | 0.01 | 1.00 | 0.22 | 0.00 | **3** |
+| modal: mode 3 | 1.35 | 0.80 | 0.00 | 1.00 | 0.06 | 0.00 | **3** |
+| modal: mode 4 | 0.75 | 0.79 | 0.00 | 1.00 | 0.02 | 0.00 | **3** |
+| feedback: 1x delay | 0.09 | 0.77 | 0.00 | 0.00 | 0.09 | 0.94 | **1** |
+| feedback: 2x delay | 0.11 | 0.77 | 0.00 | 0.00 | 0.08 | 0.94 | **1** |
+| feedback: 3x delay | 0.11 | 0.77 | 0.00 | 0.00 | 0.08 | 0.94 | **1** |
+| feedback: 4x delay | 0.11 | 0.77 | 0.00 | 0.00 | 0.08 | 0.94 | **1** |
+| feedback: 5x delay | 0.12 | 0.78 | 0.00 | 0.00 | 0.07 | 0.94 | **1** |
+| feedback: 6x delay | 0.12 | 0.78 | 0.00 | 0.00 | 0.07 | 0.94 | **1** |
+| feedback: overall feedback recurrence | 0.23 | 0.96 | 0.00 | 0.00 | 0.52 | 0.94 | **1** |
+| metric: pure exponential decay | 1.00 | 0.89 | 0.00 | 1.00 | 1.00 | 0.00 | **3** |
+| metric: double exponential decay | 0.44 | 0.91 | 0.01 | 1.00 | 1.00 | 0.00 | **3** |
+| metric: delay line without feedback | 0.07 | 0.00 | 0.00 | 0.00 | 1.00 | 0.36 | **1** |
+| metric: feedback loop | 0.15 | 0.00 | 0.00 | 0.00 | 1.00 | 0.54 | **1** |
+| metric: resonant system | 4.96 | 1.00 | 1.00 | 0.46 | 1.00 | 0.94 | **2** |
+| metric: chaotic recurrence | 4.96 | 1.00 | 1.00 | 0.82 | 1.00 | 0.12 | **2** |
+| metric: periodic recurrence | 0.96 | 0.00 | 1.00 | 0.84 | 1.00 | 0.89 | **1** |
 
 ## 2. Identified Clusters (Ward's Linkage)
 ### Cluster 1
-- competing: 1320 Hz
-- competing: noise floor
 - feedback: 1x delay
 - feedback: 2x delay
 - feedback: 3x delay
@@ -39,36 +44,45 @@ The goal is to determine if "persistence" behaves as a single continuum, distinc
 - feedback: 5x delay
 - feedback: 6x delay
 - feedback: overall feedback recurrence
-- modal: mode 3
-- modal: mode 4
-- signal: Decaying sine 440 Hz
+- metric: delay line without feedback
+- metric: feedback loop
+- metric: periodic recurrence
+- signal: White noise burst
 
 ### Cluster 2
-- competing: 440 Hz
-- competing: 880 Hz
-- modal: mode 1
-- modal: mode 2
+- metric: chaotic recurrence
+- metric: resonant system
 - signal: Frequency drift 440 Hz
 - signal: Pure sine 440 Hz
 
 ### Cluster 3
-- signal: White noise burst
+- competing: 1320 Hz
+- competing: 440 Hz
+- competing: 880 Hz
+- competing: noise floor
+- metric: double exponential decay
+- metric: pure exponential decay
+- modal: mode 1
+- modal: mode 2
+- modal: mode 3
+- modal: mode 4
+- signal: Decaying sine 440 Hz
 
 
 
 ## 3. Dimensionality Reduction (PCA)
-- **PC1** explains **41.5%** of the total variance.
-- **PC2** explains **32.9%** of the total variance.
+- **PC1** explains **40.1%** of the total variance.
+- **PC2** explains **28.7%** of the total variance.
 
 ### Principal Components Loadings
 | Metric | PC1 Loading | PC2 Loading |
 | :--- | :---: | :---: |
-| survival_time | -0.577 | -0.198 |
-| identity_stability | -0.384 | 0.501 |
-| energy_decay | -0.430 | -0.295 |
-| recovery_after_perturbation | 0.324 | -0.002 |
-| competition_strength | -0.297 | -0.551 |
-| state_memory | -0.376 | 0.565 |
+| survival_time | -0.575 | 0.154 |
+| identity_stability | -0.216 | -0.263 |
+| energy_decay | -0.440 | 0.489 |
+| recovery_after_perturbation | -0.448 | -0.482 |
+| competition_strength | -0.371 | 0.363 |
+| state_memory | 0.300 | 0.552 |
 
 ## 4. Key Observations & Findings
 

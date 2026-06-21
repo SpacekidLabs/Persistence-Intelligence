@@ -1,57 +1,57 @@
 {
     "1x delay": {
-        "survival_time": 0.5688888888888889,
+        "survival_time": 0.08769885658554782,
         "identity_stability": 0.7717822474501431,
         "energy_decay": 6.406474708409346e-10,
-        "recovery_after_perturbation": 0.998464122037882,
+        "recovery_after_perturbation": 0.0,
         "competition_strength": 0.09164182481182624,
         "state_memory": 0.9438242185122535
     },
     "2x delay": {
-        "survival_time": 0.5804988662131519,
+        "survival_time": 0.1127841460054162,
         "identity_stability": 0.7738038343407412,
         "energy_decay": 8.498048710239864e-10,
-        "recovery_after_perturbation": 0.9980672902403532,
+        "recovery_after_perturbation": 0.0,
         "competition_strength": 0.07649651694657489,
         "state_memory": 0.9438242185122535
     },
     "3x delay": {
-        "survival_time": 0.5804988662131519,
+        "survival_time": 0.1127841460054162,
         "identity_stability": 0.7738038343407412,
         "energy_decay": 8.498048710239864e-10,
-        "recovery_after_perturbation": 0.9980672902403532,
+        "recovery_after_perturbation": 0.0,
         "competition_strength": 0.07649651694657489,
         "state_memory": 0.9438242185122535
     },
     "4x delay": {
-        "survival_time": 0.5804988662131519,
+        "survival_time": 0.1127841460054162,
         "identity_stability": 0.7738038343407412,
         "energy_decay": 8.498048710239864e-10,
-        "recovery_after_perturbation": 0.9980672902403532,
+        "recovery_after_perturbation": 0.0,
         "competition_strength": 0.07649651694657489,
         "state_memory": 0.9438242185122535
     },
     "5x delay": {
-        "survival_time": 0.7198185941043084,
+        "survival_time": 0.11639160879636132,
         "identity_stability": 0.7804695534940255,
         "energy_decay": 1.0450552117304373e-09,
-        "recovery_after_perturbation": 0.9974703095429318,
+        "recovery_after_perturbation": 0.0,
         "competition_strength": 0.07375570264485776,
         "state_memory": 0.9438242185122535
     },
     "6x delay": {
-        "survival_time": 0.7198185941043084,
+        "survival_time": 0.11639160879636132,
         "identity_stability": 0.7804695534940255,
         "energy_decay": 1.0450552117304373e-09,
-        "recovery_after_perturbation": 0.9974703095429318,
+        "recovery_after_perturbation": 0.0,
         "competition_strength": 0.07375570264485776,
         "state_memory": 0.9438242185122535
     },
     "overall feedback recurrence": {
-        "survival_time": 0.15092970521541949,
+        "survival_time": 0.22555102854464879,
         "identity_stability": 0.9593274024370513,
         "energy_decay": 8.980540623292632e-10,
-        "recovery_after_perturbation": 0.9992577839255031,
+        "recovery_after_perturbation": 0.0,
         "competition_strength": 0.5152933317315003,
         "state_memory": 0.9438242185122535
     }

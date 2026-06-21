@@ -87,12 +87,14 @@ def compute_taxonomy_metrics(
     total_energy: np.ndarray | None = None,
     frame_times: np.ndarray | None = None,
 ) -> dict[str, float]:
-    """Computes the 6 harmonized metrics for the taxonomy analysis."""
-    from persistence.trackers import band_stability_score, survival_time
+    """Computes the 6 corrected taxonomy metrics, resolving the 4 identified flaws."""
+    from persistence.trackers import band_stability_score
     
-    # 1. survival_time
-    if frame_times is not None:
-        surv = survival_time(frame_times, energy, threshold=0.1)
+    # 1. survival_time (Effective Survival Time using ENBW of the energy curve)
+    energy_sum = np.sum(energy)
+    if energy_sum > 0:
+        dt = frame_times[1] - frame_times[0] if (frame_times is not None and len(frame_times) > 1) else 1.0
+        surv = float((energy_sum ** 2) / (np.sum(energy ** 2) + 1e-12) * dt)
     else:
         surv = 0.0
         
@@ -104,39 +106,56 @@ def compute_taxonomy_metrics(
     else:
         stability = band_stability_score(energy)
         
-    # 3. energy_decay (measured as energy retention score)
+    # 3. energy_decay (energy retention score)
     retention = energy_retention_score(energy)
     
-    # 4. recovery_after_perturbation
+    # 4. recovery_after_perturbation (smoothness of post-transient energy; returns 0 if decayed to silence)
     n = len(energy)
     if n < 10:
         recovery = 1.0
     else:
         post_transient = energy[int(n * 0.15):]
-        if len(post_transient) < 2:
+        if len(post_transient) < 5:
             recovery = 1.0
         else:
-            recovery = float(1.0 / (1.0 + np.std(post_transient)))
+            post_mean = np.mean(post_transient)
+            if post_mean < 1e-3:
+                recovery = 0.0
+            else:
+                window = 5
+                smoothed = np.convolve(post_transient, np.ones(window)/window, mode='valid')
+                residuals = post_transient[window//2 : window//2 + len(smoothed)] - smoothed
+                var_res = np.var(residuals)
+                var_total = np.var(post_transient)
+                if var_total == 0:
+                    recovery = 1.0
+                else:
+                    recovery = float(1.0 / (1.0 + var_res / (var_total + 1e-12)))
             
     # 5. competition_strength
     if total_energy is not None:
         ratio = energy / (total_energy + 1e-12)
         comp_strength = float(np.clip(np.mean(ratio), 0, 1))
     else:
-        comp_strength = 1.0  # Default to 1.0 for single isolated signals
+        comp_strength = 1.0
         
-    # 6. state_memory
+    # 6. state_memory (envelope autocorrelation peak prominence to separate decay from recurrence)
     if recurrence_values is not None:
         memory = float(np.mean(recurrence_values))
     else:
-        # Compute autocorrelation-based self-similarity
-        if n >= 4:
-            half = n // 2
-            first_half = energy[:half]
-            second_half = energy[half:2*half]
-            denom = np.linalg.norm(first_half) * np.linalg.norm(second_half)
-            if denom > 0:
-                memory = float(np.clip(np.dot(first_half, second_half) / denom, 0, 1))
+        if n >= 10:
+            e_centered = energy - np.mean(energy)
+            acorr = np.correlate(e_centered, e_centered, mode='full')[n-1:]
+            if acorr[0] > 0:
+                acorr = acorr / acorr[0]
+                peaks = []
+                for i in range(1, len(acorr) - 1):
+                    if acorr[i] > acorr[i-1] and acorr[i] > acorr[i+1]:
+                        peaks.append(acorr[i])
+                if len(peaks) > 0:
+                    memory = float(np.clip(np.max(peaks), 0, 1))
+                else:
+                    memory = 0.0
             else:
                 memory = 0.0
         else:
