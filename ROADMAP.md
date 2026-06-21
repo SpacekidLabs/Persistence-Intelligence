@@ -27,6 +27,10 @@ The core discipline this project is trying to hold itself to:
       disagreement rates between metrics, and runs PCA/correlation/k-means
       as a secondary view.
 - [x] **Run 05 on real measurements.** Done. Rerunning `05` on the actual experimental signals shows distinct clusters and proves the existence of multiple axes of persistence (Possibility C).
+- [x] **Experiment 06 (Metric Falsification Sweep)**. Completed. Redesigned metrics separate sines, decays, and feedback recurrence.
+- [x] **Experiment 07 (Delay-Gain Sweep)**. Completed. Confirmed the bifurcation tracks physical parameters, proving it is dynamics-driven (Future A).
+- [x] **Experiment 08 (Representation Robustness)**. Completed. Bifurcation and taxonomy boundaries shift across representations, confirming representation fragility (Future B). Calculated stability ranking of the 26 baseline structures.
+- [x] **Experiment 09 (Adversarial Structures & Representation Disagreement)**. Completed. Identified Chirps as maximizing observer disagreement (score of 3.0951), exhibiting classification conflicts between Recurrence and Stationary/Resonance.
 
 ---
 
@@ -142,16 +146,17 @@ roadmap's optimistic branches.
   We evaluated all 26 structures and ran the gain sweep across 4 representations (Waveform envelope, STFT Spectrogram, Gabor Wavelet filterbank, and Modal decomposition).
   - **Verdict**: **Future B: Representation Fragility** was confirmed!
   - **Findings**: The bifurcation threshold gain $g^*$ shifted significantly across representations: **$0.558$ for Waveform, $0.762$ for Spectrogram, $0.558$ for Wavelet, and $0.533$ for Modal**. The cluster agreement dropped to **$51.4\%$** for Modal decomposition. This mathematically proves that category boundaries and transition thresholds are not completely intrinsic properties of the system, but are partially constructed by how we choose to observe it (observation window and feature domain).
+  - **Stability Ranking**: Computed the mean metric variance across representations for each structure. Exponential decays (`pure exponential decay`, `Decaying sine 440 Hz`, and `double exponential decay`) are the most representation-stable (lowest metric variance, mean var $\approx 0.05-0.06$). Conversely, continuous resonant structures like `Pure sine 440 Hz` and `resonant system` are the most representation-fragile (highest metric variance, mean var $\approx 0.48$). This confirms that transient/decay boundaries are extremely stable, while stationary and continuous resonance boundaries are highly observation-dependent.
 
 ## Experiment 09 - Adversarial Structures (Robustness Falsification)
 
-Test the boundaries of our measurement framework using signals designed to actively deceive the taxonomy:
-- **Design**: Intentionally generate adversarial structures:
-  - Beating oscillators (conflating decay and modulation)
-  - Chirps (drifting resonances)
-  - Quasi-periodic oscillators
-  - Granular clouds and coupled resonator loops
-- **Hypothesis**: Find the limits of the ENBW survival and autocorrelation memory metrics. Document where the metrics are fooled, establishing a boundary for where our persistence categories are valid.
+- [x] **Experiment 09 (Adversarial Structures & Representation Disagreement)**. Completed on June 21, 2026.
+  We generated 8 adversarial signals (beating sines, chirps, glissando, quasi-periodic, FM coupled, granular clouds, 1/f noise, stochastic resonators) to find which signal structures maximize observer disagreement. We measured the representation disagreement score as the mean pairwise Euclidean distance in the 6D standardized metric space across the 4 representations.
+  - **Verdict**: **Future B: Representation Fragility (Observer Dependency)** was confirmed.
+  - **Findings**: **Chirps** maximized observer disagreement (score of **3.0951**), followed by **Glissando** (score of **2.6780**).
+    - Under the Waveform, Spectrogram, and Wavelet representations, the **Chirps** signal is classified as **Recurrence** (owing to its flat waveform envelope, lack of decay, and high recovery/smoothness metrics).
+    - Under the Modal representation, it is classified as **Stationary/Resonance** (as the frequency sweep temporarily activates and rings out individual narrow-band IIR resonators).
+    - This severe conflict (Waveform/STFT/Wavelet = Recurrence, Modal = Stationary/Resonance) confirms that persistence classification is a joint property of the system's physics and the observer's resolution, rather than an absolute property of the signal.
 
 ---
 

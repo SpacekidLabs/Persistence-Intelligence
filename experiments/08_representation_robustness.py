@@ -443,6 +443,7 @@ def main() -> None:
     rep_datasets = {}
     rep_clusterings = {}
     rep_pca_coords = {}
+    rep_X_scaled_all = {}
     
     fig, axes = plt.subplots(2, 2, figsize=(14, 12))
     fig.suptitle("Experiment 08 - Taxonomy PCA Space Across Representations", fontweight="bold", fontsize=14)
@@ -470,6 +471,7 @@ def main() -> None:
         rep_std = rep_X.std(axis=0)
         rep_std[rep_std == 0] = 1.0
         rep_X_scaled = (rep_X - rep_mean) / rep_std
+        rep_X_scaled_all[rep] = rep_X_scaled
         
         # PCA
         U, S, Vt = np.linalg.svd(rep_X_scaled, full_matrices=False)
@@ -618,6 +620,64 @@ This confirms that **{"representation-fragility plays a major role in persistenc
     print("REPRESENTATION SWEEP VERDICT")
     print("="*40)
     print(report[:800] + "\n... [truncated, read full file at experiments/results/08_representation_robustness_report.md]")
+
+    # --- Step 7: Calculate Stability Ranking ---
+    stability_data = []
+    for s_idx, s in enumerate(structures):
+        # Gather metrics across representations: shape (4, 6)
+        struct_metrics = np.zeros((len(REPRESENTATIONS), len(METRIC_NAMES)))
+        for r_idx, rep in enumerate(REPRESENTATIONS):
+            struct_metrics[r_idx, :] = rep_X_scaled_all[rep][s_idx, :]
+            
+        # Variance of each of the 6 standardized metrics across the 4 representations
+        metric_vars = np.var(struct_metrics, axis=0)
+        mean_var = float(np.mean(metric_vars))
+        
+        # Unique cluster assignments
+        cluster_assigns = [int(rep_clusterings[rep][s_idx]) for rep in REPRESENTATIONS]
+        unique_clusters = int(len(set(cluster_assigns)))
+        
+        stability_data.append({
+            "structure": s["struct"],
+            "experiment": s["exp"],
+            "mean_variance": mean_var,
+            "unique_clusters": unique_clusters,
+            "cluster_assignments": cluster_assigns,
+        })
+        
+    # Sort stability_data: lowest variance first (most stable)
+    stability_data.sort(key=lambda x: x["mean_variance"])
+    
+    # Save table to experiments/results/representation_stability_ranking.md
+    ranking_lines = []
+    ranking_lines.append("# Representation Stability Ranking")
+    ranking_lines.append("")
+    ranking_lines.append("This document ranks the 26 baseline structures from the most representation-stable (least metric variance and cluster shifting across Waveform, STFT, Wavelet, and Modal representations) to the most representation-fragile.")
+    ranking_lines.append("")
+    ranking_lines.append("| Rank | Structure | Experiment Source | Mean Metric Var | Unique Clusters | Cluster Assignments (W, S, Wl, M) |")
+    ranking_lines.append("| :---: | :--- | :--- | :---: | :---: | :---: |")
+    for r_idx, item in enumerate(stability_data, 1):
+        assigns_str = ", ".join(map(str, item["cluster_assignments"]))
+        ranking_lines.append(f"| {r_idx} | {item['structure']} | {item['experiment']} | {item['mean_variance']:.4f} | {item['unique_clusters']} | ({assigns_str}) |")
+        
+    ranking_lines.append("")
+    ranking_lines.append("## Analysis & Scientific Interpretation")
+    ranking_lines.append("")
+    ranking_lines.append("### Stable Core (Top 5)")
+    ranking_lines.append("These structures retain consistent profiles and cluster membership across representations:")
+    for r_idx, item in enumerate(stability_data[:5], 1):
+        ranking_lines.append(f"- **{item['structure']}** ({item['experiment']}): Mean Variance = {item['mean_variance']:.4f}")
+        
+    ranking_lines.append("")
+    ranking_lines.append("### Fragile Boundary Structures (Bottom 5)")
+    ranking_lines.append("These structures change their behavior significantly depending on the representation window:")
+    for r_idx, item in enumerate(stability_data[-5:], 1):
+        ranking_lines.append(f"- **{item['structure']}** ({item['experiment']}): Mean Variance = {item['mean_variance']:.4f}, Unique Clusters = {item['unique_clusters']}")
+        
+    ranking_path = results_dir / "representation_stability_ranking.md"
+    with open(ranking_path, "w") as f:
+        f.write("\n".join(ranking_lines))
+    print(f"Saved representation stability ranking to: {ranking_path}")
 
 
 if __name__ == "__main__":
