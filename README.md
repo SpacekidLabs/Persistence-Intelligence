@@ -39,3 +39,15 @@ The old root launcher still works:
 python persistence_experiment_01.py
 ```
 
+## Current Experiments
+
+```bash
+python experiments/01_signal_persistence.py --save experiments/01_signal_persistence.png
+python experiments/02_competing_resonances.py --save experiments/02_competing_resonances.png
+python experiments/03_modal_objects.py --save experiments/03_modal_objects.png
+python experiments/04_feedback_systems.py --save experiments/04_feedback_systems.png
+```
+
+Experiment 02 asks which frequency structures survive in a mixed signal.
+Experiment 03 treats modes as physical objects after excitation.
+Experiment 04 asks whether feedback persistence is recurrence, not just resonance.
