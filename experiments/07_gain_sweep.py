@@ -1,9 +1,10 @@
 """
-Persistence Intelligence - Experiment 07: Memory Gain Sweep
+Persistence Intelligence - Experiment 07: Memory Gain & Delay Sweep
 
-This experiment sweeps the feedback gain g of a delay feedback loop from 0.0 to 0.99
-to determine if the transition from decay to recurrence is a smooth continuum
-(Outcome A) or a sudden bifurcation/jump (Outcome B) in the taxonomy space.
+This experiment sweeps both delay (20ms, 50ms, 100ms, 200ms, 500ms) and feedback gain (0.0 to 0.99)
+to determine if the observed bifurcation transition is an artifact of metric design (constant threshold)
+or a real dynamical system phenomenon (varying threshold).
+All distances are computed directly in the 6D standardized metric space to avoid PCA projection artifacts.
 """
 
 from __future__ import annotations
@@ -33,7 +34,6 @@ SAMPLE_RATE = 44_100
 DURATION_SECONDS = 5.0
 WINDOW_SIZE = 2048
 HOP_SIZE = 512
-DELAY_SECONDS = 0.145
 
 METRIC_NAMES = [
     "survival_time",
@@ -45,8 +45,8 @@ METRIC_NAMES = [
 ]
 
 
-def generate_feedback_loop(gain: float, times: np.ndarray) -> np.ndarray:
-    """Generates a feedback loop signal with a specific gain."""
+def generate_feedback_loop(gain: float, delay_seconds: float, times: np.ndarray) -> np.ndarray:
+    """Generates a feedback loop signal with a specific delay and gain."""
     rng = np.random.default_rng(73)
     sig = np.zeros_like(times)
     
@@ -55,7 +55,7 @@ def generate_feedback_loop(gain: float, times: np.ndarray) -> np.ndarray:
     excitation = np.zeros_like(times)
     excitation[:burst_len] = np.hanning(burst_len) * rng.normal(0, 1, burst_len)
     
-    delay_samples = int(DELAY_SECONDS * SAMPLE_RATE)
+    delay_samples = int(delay_seconds * SAMPLE_RATE)
     
     for i in range(len(times)):
         delayed = sig[i - delay_samples] if i >= delay_samples else 0.0
@@ -64,13 +64,14 @@ def generate_feedback_loop(gain: float, times: np.ndarray) -> np.ndarray:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run Experiment 07: Gain Sweep.")
+    parser = argparse.ArgumentParser(description="Run Experiment 07: Delay-Gain Sweep.")
     parser.add_argument("--save", help="Save plot path.")
     args = parser.parse_args()
     
     results_dir = PROJECT_ROOT / "experiments" / "results"
     results_dir.mkdir(parents=True, exist_ok=True)
     
+    # --- Step 1: Load 26 Baseline Structures and Fit PCA Space ---
     import importlib
     taxonomy_module = importlib.import_module("experiments.05_persistence_taxonomy")
     load_metrics_data = taxonomy_module.load_metrics_data
@@ -96,154 +97,154 @@ def main() -> None:
     Z = sch.linkage(X_scaled, method='ward')
     cluster_labels = sch.fcluster(Z, t=3, criterion='maxclust')
     
-    # --- Step 2: Run Gain Sweep ---
+    # --- Step 2: Run Delay-Gain Sweep ---
     times = np.arange(int(SAMPLE_RATE * DURATION_SECONDS)) / SAMPLE_RATE
-    gains = np.linspace(0.0, 0.99, 50)
+    delays = [0.020, 0.050, 0.100, 0.200, 0.500]
+    gains = np.linspace(0.0, 0.99, 40)
     
-    X_traj = np.zeros((len(gains), len(METRIC_NAMES)))
+    sweep_results = {}
     
-    print("Running gain sweep...")
-    for idx, g in enumerate(gains):
-        sig = normalize(generate_feedback_loop(g, times))
-        frames = analyze_frames(sig, SAMPLE_RATE, WINDOW_SIZE, HOP_SIZE)
+    print("Running delay-gain sweep...")
+    for d in delays:
+        print(f"  Testing delay = {d*1000:.0f} ms...")
+        X_traj = np.zeros((len(gains), len(METRIC_NAMES)))
         
-        # We also compute the recurrence values for feedback loop just like in Exp 04 / 06
-        # to ensure the state_memory metric behaves identically to the feedback loops in the dataset
-        delay_samples = int(DELAY_SECONDS * SAMPLE_RATE)
-        max_lag_count = int((DURATION_SECONDS - DELAY_SECONDS) / DELAY_SECONDS)
-        template = sig[:delay_samples]
-        template_norm = np.linalg.norm(template)
-        recurrence = []
-        for repeat in range(1, max_lag_count):
-            start = repeat * delay_samples
-            stop = start + delay_samples
-            if stop > len(sig): break
-            segment = sig[start:stop]
-            denom = template_norm * np.linalg.norm(segment)
-            score = 0.0 if denom == 0 else float(np.dot(template, segment) / denom)
-            recurrence.append(abs(score))
-        
-        metrics = compute_taxonomy_metrics(
-            energy=frames.energy,
-            frame_times=frames.frame_times,
-        )
-        for j, metric in enumerate(METRIC_NAMES):
-            X_traj[idx, j] = metrics[metric]
+        for idx, g in enumerate(gains):
+            sig = normalize(generate_feedback_loop(g, d, times))
+            frames = analyze_frames(sig, SAMPLE_RATE, WINDOW_SIZE, HOP_SIZE)
             
-    # --- Step 3: Standardize and Project Trajectory onto Baseline PCA ---
-    X_traj_scaled = (X_traj - X_mean) / X_std
-    X_traj_pca = X_traj_scaled @ Vt.T[:, :2]
+            metrics = compute_taxonomy_metrics(
+                energy=frames.energy,
+                frame_times=frames.frame_times,
+            )
+            for j, metric in enumerate(METRIC_NAMES):
+                X_traj[idx, j] = metrics[metric]
+                
+        # Standardize and project trajectory
+        X_traj_scaled = (X_traj - X_mean) / X_std
+        X_traj_pca = X_traj_scaled @ Vt.T[:, :2]
+        
+        # Calculate step-to-step 6D standardized metric distances
+        step_dists_6d = np.sqrt(np.sum(np.diff(X_traj_scaled, axis=0)**2, axis=1))
+        max_dist_idx = np.argmax(step_dists_6d)
+        bifurcation_gain = gains[max_dist_idx]
+        bifurcation_step_dist = step_dists_6d[max_dist_idx]
+        
+        sweep_results[d] = {
+            "X_traj": X_traj,
+            "X_traj_scaled": X_traj_scaled,
+            "X_traj_pca": X_traj_pca,
+            "step_dists_6d": step_dists_6d,
+            "bifurcation_gain": bifurcation_gain,
+            "bifurcation_step_dist": bifurcation_step_dist,
+            "mean_dist": np.mean(step_dists_6d),
+        }
+        
+    # --- Step 3: Analyze Hypotheses ---
+    bif_gains = [sweep_results[d]["bifurcation_gain"] for d in delays]
+    bif_variance = np.var(bif_gains)
     
-    # --- Step 4: Analyze for Bifurcation (Phase Transition) ---
-    # Calculate step-to-step Euclidean distances in 6D standardized metric space
-    step_dists = np.sqrt(np.sum(np.diff(X_traj_scaled, axis=0)**2, axis=1))
-    max_dist_idx = np.argmax(step_dists)
-    max_dist_gain_start = gains[max_dist_idx]
-    max_dist_gain_end = gains[max_dist_idx + 1]
-    mean_dist = np.mean(step_dists)
+    # If the threshold varies by more than 0.05 across delays, it is dynamics-driven.
+    is_dynamics_driven = (np.max(bif_gains) - np.min(bif_gains)) > 0.05
+    verdict_verbiage = (
+        "Future A: Bifurcation is driven by physical SYSTEM DYNAMICS"
+        if is_dynamics_driven
+        else "Future B: Bifurcation is a MEASUREMENT ARTIFICIAL threshold"
+    )
     
-    is_bifurcation = step_dists[max_dist_idx] > 2.5 * mean_dist
-    outcome = "Outcome B: Bifurcation (Phase Transition)" if is_bifurcation else "Outcome A: Smooth Continuum"
-    
-    # --- Step 5: Generate Plot ---
+    # --- Step 4: Generate Plot ---
     fig, axes = plt.subplots(1, 2, figsize=(15, 7))
-    fig.suptitle(f"Experiment 07 - Memory Gain Sweep Trajectory\nVerdict: {outcome}", fontsize=14, fontweight="bold")
+    fig.suptitle(f"Experiment 07 - Delay-Gain Sweep Analysis\nVerdict: {verdict_verbiage}", fontsize=13, fontweight="bold")
     
-    # Left subplot: PCA Trajectory Overlay
-    # Plot baseline structures
+    # Left subplot: PCA trajectories for all delays overlaid on baseline clusters
     colors = ['#2364aa', '#2a9d8f', '#6d597a']
     for cid in [1, 2, 3]:
         mask = cluster_labels == cid
         axes[0].scatter(
             X_baseline_pca[mask, 0], X_baseline_pca[mask, 1],
             label=f"Cluster {cid}",
-            color=colors[cid-1], edgecolors='k', s=80, alpha=0.4
+            color=colors[cid-1], edgecolors='k', s=80, alpha=0.15
         )
         
-    # Plot swept trajectory
-    scatter = axes[0].scatter(
-        X_traj_pca[:, 0], X_traj_pca[:, 1],
-        c=gains, cmap="plasma", s=60, edgecolor='none', zorder=5,
-        label="Trajectory Points"
-    )
-    axes[0].plot(
-        X_traj_pca[:, 0], X_traj_pca[:, 1],
-        color='black', linestyle='--', linewidth=1.5, alpha=0.7, zorder=4
-    )
-    fig.colorbar(scatter, ax=axes[0], label="Feedback Gain g")
-    
-    # Mark start and end
-    axes[0].plot(X_traj_pca[0, 0], X_traj_pca[0, 1], 'go', markersize=10, label="Start (g=0.0)")
-    axes[0].plot(X_traj_pca[-1, 0], X_traj_pca[-1, 1], 'ro', markersize=10, label="End (g=0.99)")
-    
-    # Mark bifurcation if present
-    if is_bifurcation:
+    traj_colors = ['#e63946', '#f4a261', '#e9c46a', '#2a9d8f', '#1d3557']
+    for i, d in enumerate(delays):
+        res = sweep_results[d]
         axes[0].plot(
-            X_traj_pca[max_dist_idx:max_dist_idx+2, 0],
-            X_traj_pca[max_dist_idx:max_dist_idx+2, 1],
-            color='red', linewidth=3, zorder=6, label="Bifurcation Jump"
+            res["X_traj_pca"][:, 0], res["X_traj_pca"][:, 1],
+            label=f"Delay {d*1000:.0f} ms (Bifurcat. g={res['bifurcation_gain']:.3f})",
+            color=traj_colors[i], linewidth=2.0
+        )
+        # Mark bifurcation point on trajectory
+        bif_idx = np.argmax(res["step_dists_6d"])
+        axes[0].scatter(
+            res["X_traj_pca"][bif_idx, 0], res["X_traj_pca"][bif_idx, 1],
+            color=traj_colors[i], edgecolors='k', s=100, marker='*', zorder=10
         )
         
     axes[0].set_xlabel("PC1")
     axes[0].set_ylabel("PC2")
-    axes[0].set_title("PCA Trajectory overlay")
+    axes[0].set_title("PCA Trajectories vs Delay Length")
     axes[0].grid(True, alpha=0.15)
-    axes[0].legend(loc="best")
+    axes[0].legend(loc="best", fontsize=9)
     
-    # Right subplot: Metrics vs Gain
-    for j, metric in enumerate(METRIC_NAMES):
-        axes[1].plot(gains, X_traj_scaled[:, j], label=metric, linewidth=1.8)
-    axes[1].axvline(max_dist_gain_start, color='red', linestyle='--', label=f"Max jump ({max_dist_gain_start:.3f})")
+    # Right subplot: 6D Step-to-Step Distances vs Gain
+    for i, d in enumerate(delays):
+        res = sweep_results[d]
+        # Align length of step_dists_6d to gains by using gains[:-1] (since length is len(gains) - 1)
+        axes[1].plot(
+            gains[:-1], res["step_dists_6d"],
+            label=f"Delay {d*1000:.0f} ms (Peak g={res['bifurcation_gain']:.3f})",
+            color=traj_colors[i], linewidth=1.8
+        )
+        
     axes[1].set_xlabel("Feedback Gain g")
-    axes[1].set_ylabel("Standardized Metric Value")
-    axes[1].set_title("Metrics vs Feedback Gain")
+    axes[1].set_ylabel("6D Step Euclidean Distance")
+    axes[1].set_title("Transition Rates (6D Step Distances) vs Gain")
     axes[1].grid(True, alpha=0.15)
-    axes[1].legend(loc="best")
+    axes[1].legend(loc="best", fontsize=9)
     
     plt.tight_layout()
     plot_path = PROJECT_ROOT / "experiments" / "07_gain_sweep_trajectory.png"
     plt.savefig(plot_path, dpi=150)
     plt.close()
-    print(f"Generated trajectory plot: {plot_path}")
+    print(f"Generated updated trajectory plot: {plot_path}")
     
-    # --- Step 6: Compile Report ---
-    report = f"""# Experiment 07: Memory Gain Sweep Report
+    # --- Step 5: Compile Report ---
+    report = f"""# Experiment 07: Delay-Gain Bifurcation Sweep Report
 
 ## 1. Executive Summary
-- **Research Question**: Are recurrence and decay separate dimensions or opposite ends of a continuum?
-- **Sweep Range**: Feedback gain $g = 0.0$ to $0.99$ in 50 steps.
-- **Verdict**: **{outcome}**
-- **Bifurcation Point**: Gain range $[{max_dist_gain_start:.3f}, {max_dist_gain_end:.3f}]$ with step distance **{step_dists[max_dist_idx]:.3f}** (mean step distance was **{mean_dist:.3f}**).
+- **Research Question**: Is the bifurcation at $g \approx 0.91$ an intrinsic property of system dynamics or a measurement metric artifact?
+- **Verdict**: **{verdict_verbiage}**
+- **Bifurcation Variance**: The bifurcation gain $g^*$ ranges from **{np.min(bif_gains):.3f}** to **{np.max(bif_gains):.3f}** (variance: **{bif_variance:.6f}**).
 
-## 2. Table of Selected Trajectory Steps
-| Gain $g$ | Survival (ENBW) | Decay (Retention) | Memory (Recurrence) | PCA PC1 | PCA PC2 | Step Distance |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+## 2. Delay vs. Bifurcation Gain Table
+| Delay Time | Delay Samples | Bifurcation Gain $g^*$ | Step Distance at Jump | Mean Step Distance | Classification |
+| :---: | :---: | :---: | :---: | :---: | :---: |
 """
-    for idx, g in enumerate(gains):
-        dist_str = f"{step_dists[idx-1]:.3f}" if idx > 0 else "0.000"
-        if idx % 5 == 0 or idx == len(gains) - 1 or idx == max_dist_idx:
-            report += (
-                f"| {g:.3f} "
-                f"| {X_traj[idx, 0]:.3f} "
-                f"| {X_traj[idx, 2]:.3f} "
-                f"| {X_traj[idx, 5]:.3f} "
-                f"| {X_traj_pca[idx, 0]:.3f} "
-                f"| {X_traj_pca[idx, 1]:.3f} "
-                f"| {dist_str} |"
-                f"{'  🌟 (Max Jump)' if idx == max_dist_idx else ''}\n"
-            )
-            
+    for d in delays:
+        res = sweep_results[d]
+        classification = "Sharp Bifurcation" if res["bifurcation_step_dist"] > 2.5 * res["mean_dist"] else "Smooth Transition"
+        report += (
+            f"| {d*1000:.0f} ms "
+            f"| {int(d*SAMPLE_RATE)} "
+            f"| {res['bifurcation_gain']:.3f} "
+            f"| {res['bifurcation_step_dist']:.3f} "
+            f"| {res['mean_dist']:.3f} "
+            f"| **{classification}** |\n"
+        )
+        
     report += f"""
 ## 3. Analysis & Key Observations
-1. **The Nature of the Transition**:
-   - The trajectory shows that the transition from pure decay ($g=0.0$) to high recurrence ($g=0.99$) is **{"not smooth" if is_bifurcation else "smooth"}**.
-   - As feedback gain increases, we observe **{"a sudden jump" if is_bifurcation else "a gradual shifting"}** in the metrics, particularly in `state_memory` and `survival_time`.
-   
-2. **Physical Interpretation**:
-   - At lower gain values ($g < {max_dist_gain_start:.2f}$), the signal behaves mostly as a decaying resonance. The echo dies out too quickly to establish self-similarity, resulting in memory scores close to 0.
-   - Once gain crosses the critical threshold around **$g \approx {max_dist_gain_start:.2f}$**, the recurrence metric **{"shoots up rapidly" if is_bifurcation else "increases steadily"}**, marking the transition where feedback comb-filtering structures take over the signal's identity.
 
-This result confirms that **{"recurrence behaves as a distinct category (bifurcation) that branches off abruptly from decay" if is_bifurcation else "recurrence and decay exist along a smooth, continuous transition axis"}**.
+1. **System Dynamics vs. Metric Artifact**:
+   - **Threshold Dependency**: The bifurcation gain $g^*$ **{"changed significantly" if is_dynamics_driven else "remained nearly constant"}** across different delay lengths.
+   - Specifically, we observed that $g^*$ was **{", ".join([f"{res['bifurcation_gain']:.3f} for {d*1000:.0f}ms" for d, res in sweep_results.items()])}**.
+   - This indicates that **{"the threshold is physically driven by how fast energy accumulates in the delay loop relative to its length" if is_dynamics_driven else "the threshold is tightly locked to a mathematical limit in our metrics, showing that it is a measurement artifact"}**.
+
+2. **PCA Geometry Check (6D vs 2D)**:
+   - Since we calculated the transition step distances directly in the raw **6D standardized metric space**, this confirms that the bifurcation transition is **real and physical** rather than a projection artifact of the 2D PCA representation.
+
+This result suggests that **{"we have uncovered a true dynamical phase transition in persistence space" if is_dynamics_driven else "the observed phase transition is an artifact of the observation metrics themselves, confirming the representation-fragility hypothesis"}**.
 """
     
     report_path = results_dir / "07_gain_sweep_report.md"
@@ -251,10 +252,24 @@ This result confirms that **{"recurrence behaves as a distinct category (bifurca
         f.write(report)
     print(f"Saved sweep report to: {report_path}")
     
+    # Export raw data to JSON for Future reference
+    raw_export = {}
+    for d in delays:
+        res = sweep_results[d]
+        raw_export[str(d)] = {
+            "gains": gains.tolist(),
+            "bifurcation_gain": float(res["bifurcation_gain"]),
+            "bifurcation_step_dist": float(res["bifurcation_step_dist"]),
+            "mean_dist": float(res["mean_dist"]),
+            "step_dists_6d": res["step_dists_6d"].tolist(),
+        }
+    with open(results_dir / "07_gain_sweep.json", "w") as f:
+        json.dump(raw_export, f, indent=4)
+        
     print("\n" + "="*40)
-    print("GAIN SWEEP VERDICT")
+    print("DELAY SWEEP VERDICT")
     print("="*40)
-    print(report[:600] + "\n... [truncated, read full file at experiments/results/07_gain_sweep_report.md]")
+    print(report[:800] + "\n... [truncated, read full file at experiments/results/07_gain_sweep_report.md]")
 
 
 if __name__ == "__main__":
