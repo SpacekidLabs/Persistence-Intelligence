@@ -76,6 +76,7 @@ def recurrence_trace(signal: np.ndarray, delay_samples: int) -> tuple[np.ndarray
 
 
 def main() -> None:
+    import json
     parser = argparse.ArgumentParser(description="Track recurring structures in feedback.")
     parser.add_argument("--save", help="Save plot instead of opening a window.")
     args = parser.parse_args()
@@ -89,6 +90,35 @@ def main() -> None:
         f"{n}x delay": band_energy_trace(frames, fundamental * n, 20)
         for n in range(1, 7)
     }
+
+    # Compute and export taxonomy metrics
+    taxonomy_metrics = {}
+    sum_energy = sum(delay_harmonics.values())
+    for name, energy in delay_harmonics.items():
+        from persistence.metrics import compute_taxonomy_metrics
+        tax_met = compute_taxonomy_metrics(
+            energy=energy,
+            total_energy=sum_energy,
+            frame_times=frames.frame_times,
+            recurrence_values=recurrence,
+        )
+        taxonomy_metrics[name] = tax_met
+
+    # Add 7th structure: "overall feedback recurrence"
+    from persistence.metrics import compute_taxonomy_metrics
+    tax_met = compute_taxonomy_metrics(
+        energy=frames.energy,
+        total_energy=frames.energy,
+        frame_times=frames.frame_times,
+        recurrence_values=recurrence,
+    )
+    taxonomy_metrics["overall feedback recurrence"] = tax_met
+
+    results_dir = PROJECT_ROOT / "experiments" / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    with open(results_dir / "04_feedback_systems.json", "w") as f:
+        json.dump(taxonomy_metrics, f, indent=4)
+    print(f"Saved taxonomy metrics to {results_dir / '04_feedback_systems.json'}")
 
     print("Feedback system summary")
     print(f"delay={DELAY_SECONDS:.3f}s feedback={FEEDBACK:.2f} loop_frequency={fundamental:.2f}Hz")

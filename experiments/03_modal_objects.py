@@ -59,6 +59,7 @@ def generate_modal_resonator() -> tuple[np.ndarray, np.ndarray]:
 
 
 def main() -> None:
+    import json
     parser = argparse.ArgumentParser(description="Track modes in a modal resonator.")
     parser.add_argument("--save", help="Save plot instead of opening a window.")
     args = parser.parse_args()
@@ -70,6 +71,26 @@ def main() -> None:
         mode["name"]: band_energy_trace(frames, mode["frequency"], 45)
         for mode in MODES
     }
+
+    # Compute and export taxonomy metrics
+    taxonomy_metrics = {}
+    sum_energy = sum(traces.values())
+    for mode in MODES:
+        name = mode["name"]
+        energy = traces[name]
+        from persistence.metrics import compute_taxonomy_metrics
+        tax_met = compute_taxonomy_metrics(
+            energy=energy,
+            total_energy=sum_energy,
+            frame_times=frames.frame_times,
+        )
+        taxonomy_metrics[name] = tax_met
+
+    results_dir = PROJECT_ROOT / "experiments" / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    with open(results_dir / "03_modal_objects.json", "w") as f:
+        json.dump(taxonomy_metrics, f, indent=4)
+    print(f"Saved taxonomy metrics to {results_dir / '03_modal_objects.json'}")
 
     print("Modal object summary")
     print("mode    freq_hz  decay_s  survival_s  stability  late_energy")

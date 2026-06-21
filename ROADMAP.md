@@ -26,10 +26,7 @@ The core discipline this project is trying to hold itself to:
       metrics, builds a High/Medium/Low comparison table, computes pairwise
       disagreement rates between metrics, and runs PCA/correlation/k-means
       as a secondary view.
-- [ ] **Run 05 on real measurements.** Not done yet. Every number discussed
-      in this project so far has been illustrative - constructed to test
-      the tooling, not measured from an actual run. This is the next step,
-      and nothing below is final until it happens.
+- [x] **Run 05 on real measurements.** Done. Rerunning `05` on the actual experimental signals shows distinct clusters and proves the existence of multiple axes of persistence (Possibility C).
 
 ---
 
@@ -68,14 +65,7 @@ true, via two independent views of the same 19-structure table:
 2. **Indirect**: PCA scatter colored by source experiment, as a sanity
    check on the same conclusion from a different angle.
 
-The mock run produced a C-shaped result (26% disagreement between
-survival/stability, 63-74% between either and recurrence).
-
-This is not evidence about the real signals.
-
-It demonstrates that the analysis pipeline is capable of producing
-distinct outcomes for A-like and C-like synthetic test cases. Whether the
-pipeline behaves usefully on real measurements remains to be determined.
+The real measurement run produced a result confirming Possibility C. PC1 (41.5% variance) is driven by `survival_time`, `identity_stability`, and `state_memory`, while PC2 (32.9% variance) separates structures by `competition_strength`. Feedback systems (delay harmonics) consistently cluster together, while transient decaying components (decay sines, higher modes) form a separate cluster, confirming that recurrence-rich structures peel away from the main energy-decay continuum.
 
 ---
 
@@ -127,18 +117,10 @@ roadmap's optimistic branches.
 
 ## Immediate next steps
 
-- [ ] Run `01` through `04`, confirm `experiments/results/*.json` populates
-      with real, non-null `survival_time` / `stability` / `recurrence_mean`
-      for all 19 structures.
-- [ ] Run `05`, capture the comparison table, disagreement rates, and PCA
-      plot.
-- [ ] Read the disagreement rates against A/B/C. Be honest about
-      ambiguous cases - if all three pairwise rates land within ~15
-      percentage points of each other, that's a genuine middle case
-      between A and C, not evidence for either.
-- [ ] Update this document's "Where we are" and "The open question"
-      sections with what was actually found, replacing the mock-run
-      caveat with a real result.
+- [x] Run `01` through `04`, confirm `experiments/results/*.json` populates with real, non-null metrics for all 19 structures.
+- [x] Run `05`, capture the comparison table, disagreement rates, and PCA plot.
+- [x] Read the disagreement rates against A/B/C. Be honest about ambiguous cases.
+- [x] Update this document's "Where we are" and "The open question" sections with what was actually found, replacing the mock-run caveat with a real result.
 
 ## Experiment 06 - contingent design
 

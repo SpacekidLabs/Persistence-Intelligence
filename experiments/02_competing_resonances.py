@@ -55,6 +55,7 @@ def generate_signal() -> tuple[np.ndarray, np.ndarray]:
 
 
 def main() -> None:
+    import json
     parser = argparse.ArgumentParser(description="Track competing resonances.")
     parser.add_argument("--save", help="Save plot instead of opening a window.")
     args = parser.parse_args()
@@ -79,6 +80,24 @@ def main() -> None:
                 float(np.mean(energy[-max(3, len(energy) // 5) :])),
             )
         )
+
+    # Compute and export taxonomy metrics
+    taxonomy_metrics = {}
+    sum_energy = sum(structures.values())
+    for name, energy in structures.items():
+        from persistence.metrics import compute_taxonomy_metrics
+        tax_met = compute_taxonomy_metrics(
+            energy=energy,
+            total_energy=sum_energy,
+            frame_times=frames.frame_times,
+        )
+        taxonomy_metrics[name] = tax_met
+
+    results_dir = PROJECT_ROOT / "experiments" / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    with open(results_dir / "02_competing_resonances.json", "w") as f:
+        json.dump(taxonomy_metrics, f, indent=4)
+    print(f"Saved taxonomy metrics to {results_dir / '02_competing_resonances.json'}")
 
     print("Competing resonance summary")
     print("structure       survival_s  stability  late_energy")

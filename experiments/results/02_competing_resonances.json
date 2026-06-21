@@ -1,0 +1,34 @@
+{
+    "440 Hz": {
+        "survival_time": 5.096780045351474,
+        "identity_stability": 0.8025537876081874,
+        "energy_decay": 0.12025737376631436,
+        "recovery_after_perturbation": 0.8600794488399921,
+        "competition_strength": 0.7412356005577296,
+        "state_memory": 0.9998649151090064
+    },
+    "880 Hz": {
+        "survival_time": 2.461315192743764,
+        "identity_stability": 0.8028736983499856,
+        "energy_decay": 0.013005001564686957,
+        "recovery_after_perturbation": 0.9042413885026354,
+        "competition_strength": 0.20042301370726648,
+        "state_memory": 0.9990724478395705
+    },
+    "1320 Hz": {
+        "survival_time": 1.0216780045351475,
+        "identity_stability": 0.8005392039289485,
+        "energy_decay": 2.5264066814155304e-05,
+        "recovery_after_perturbation": 0.9736745967427344,
+        "competition_strength": 0.04014413613345636,
+        "state_memory": 0.998157867574593
+    },
+    "noise floor": {
+        "survival_time": 0.5921088435374149,
+        "identity_stability": 0.8029163848725596,
+        "energy_decay": 2.87144944658758e-08,
+        "recovery_after_perturbation": 0.9940354607622359,
+        "competition_strength": 0.018197249597219564,
+        "state_memory": 0.9944074487564225
+    }
+}

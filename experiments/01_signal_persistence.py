@@ -102,6 +102,7 @@ def analyze_signal(name: str, signal: np.ndarray, times: np.ndarray) -> SignalRe
 
 
 def main() -> None:
+    import json
     parser = argparse.ArgumentParser(description="Explore persistence in audio signals.")
     parser.add_argument("--save", help="Save the dashboard image instead of opening a window.")
     args = parser.parse_args()
@@ -119,6 +120,24 @@ def main() -> None:
             f"stability={metrics.stability:0.3f} "
             f"continuity={metrics.continuity:0.3f}"
         )
+
+    # Compute and export taxonomy metrics
+    taxonomy_metrics = {}
+    for result in results:
+        from persistence.metrics import compute_taxonomy_metrics
+        tax_met = compute_taxonomy_metrics(
+            energy=result.energy_curve,
+            peak_frequencies=result.peak_frequencies,
+            centroids=result.centroids,
+            frame_times=result.frame_times,
+        )
+        taxonomy_metrics[result.name] = tax_met
+
+    results_dir = PROJECT_ROOT / "experiments" / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    with open(results_dir / "01_signal_persistence.json", "w") as f:
+        json.dump(taxonomy_metrics, f, indent=4)
+    print(f"Saved taxonomy metrics to {results_dir / '01_signal_persistence.json'}")
 
     build_dashboard(results, duration_seconds=DURATION_SECONDS, save_path=args.save)
 
